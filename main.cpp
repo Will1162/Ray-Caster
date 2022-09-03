@@ -1,6 +1,14 @@
 #include <random>
 #include <SFML/Graphics.hpp>
 
+void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeight, unsigned char r, unsigned char g, unsigned char b)
+{
+    pixels[(y * windowWidth + x) * 4 + 0] = (int)r;
+    pixels[(y * windowWidth + x) * 4 + 1] = (int)g;
+    pixels[(y * windowWidth + x) * 4 + 2] = (int)b;
+    pixels[(y * windowWidth + x) * 4 + 3] = 255;
+}
+
 int main()
 {   
     const int windowWidth = 800;
@@ -39,11 +47,7 @@ int main()
         {
             for (int j = 0; j < windowWidth; j++)
             {
-                int index = (i * windowWidth + j) * 4;
-                pixels[index + 0] = 0;
-                pixels[index + 1] = 0;
-                pixels[index + 2] = 0;
-                pixels[index + 3] = 255;
+                DrawPixel(j, i, pixels, windowWidth, windowHeight, 0, 0, 0);
             }
         }
 
@@ -54,7 +58,7 @@ int main()
 
 
         window.display();
-        
+
         window.setTitle("FPS: " + std::to_string((int)(1.f / (clock.restart().asSeconds() - lastTime))));
 
         float currentTime = clock.restart().asSeconds();
