@@ -25,8 +25,6 @@ int main()
     sprite.setPosition(0, 0);
     sprite.setTexture(texture);
 
-
-
     sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Window", sf::Style::Titlebar | sf::Style::Close);
     
     sf::Clock clock;
@@ -42,12 +40,51 @@ int main()
 
         window.clear();
 
+        float mouseX = sf::Mouse::getPosition(window).x / (float)windowWidth;
+        float mouseY = sf::Mouse::getPosition(window).y / (float)windowHeight;
 
         for (int i = 0; i < windowHeight; i++)
         {
             for (int j = 0; j < windowWidth; j++)
             {
-                DrawPixel(j, i, pixels, windowWidth, windowHeight, 0, 0, 0);
+                // sphere
+                float cx = 2 * mouseX - 1;
+                float cy = 2 * mouseY - 1;
+                float cz = 1.0;
+                float r  = 0.2;
+
+                // camera
+                float x0 = 0.0;
+                float y0 = 0.0;
+                float z0 = 0.0;
+
+                // pixel/ray being tested
+                float x1 = (2 * j) / (float)windowWidth - 1;
+                float y1 = (2 * i) / (float)windowHeight - 1;
+                float z1 = 1.0;
+
+                // ray vector direction
+                float dx = x1 - x0;
+                float dy = y1 - y0;
+                float dz = z1 - z0;
+
+                // ray-sphere intersection
+                float a = dx * dx + dy * dy + dz * dz;
+                float b = 2 * (dx * (x0 - cx) + dy * (y0 - cy) + dz * (z0 - cz));
+                float c = cx * cx + cy * cy + cz * cz + x0 * x0 + y0 * y0 + z0 * z0 - 2 * (cx * x0 + cy * y0 + cz * z0) - r * r;
+
+                // discriminant
+                float d = b * b - 4 * a * c;
+
+                // draw pixels if ray intersects sphere
+                if (d > 0)
+                {
+                    DrawPixel(j, i, pixels, windowWidth, windowHeight, 255, 255, 255);
+                }
+                else
+                {
+                    DrawPixel(j, i, pixels, windowWidth, windowHeight, 0, 0, 0);
+                }
             }
         }
 
