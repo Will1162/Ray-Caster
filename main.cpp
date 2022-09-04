@@ -1,6 +1,7 @@
 #include <math.h>
 #include <SFML/Graphics.hpp>
 
+#include "light.cpp"
 #include "sphere.cpp"
 #include "vec3.cpp"
 
@@ -14,7 +15,7 @@ void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeigh
 
 int main()
 {   
-	const int windowWidth = 800;
+	const int windowWidth = 600;
 	const int windowHeight = 600;
 	sf::Uint8 pixels[4 * windowWidth * windowHeight];
 
@@ -32,10 +33,10 @@ int main()
 	window.setFramerateLimit(60);
 
 	// sphere
-	float sphereX = 0.0;
-	float sphereY = 0.0;
-	float sphereZ = 20.0;
-	Sphere sphere(sphereX, sphereY, sphereZ, 1.0);
+	Sphere sphere(0.0, 0.0, 8.0, 1.0);
+
+	// light
+	Light light(-2.0, -3.0, 15.0, 1.0);
 
 	//camera 
 	Vec3 camera(0.0, 0.0, 0.0);
@@ -45,45 +46,13 @@ int main()
 	float lastTime = 0;
 	while (window.isOpen())
 	{
+		// window event handling
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-
-		window.clear();
-
-		float speed = 0.1;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		{
-			sphereX -= speed;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		{
-			sphereX += speed;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		{
-			sphereY -= speed;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		{
-			sphereY += speed;
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		{
-			sphereZ -= speed;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
-		{
-			sphereZ += speed;
-		}
-
-		
-		sphere.x = sphereX;
-		sphere.y = sphereY;
-		sphere.z = sphereZ;
 
 		// pixel to be tested
 		Vec3 pixel(0.0, 0.0, 5.0);
@@ -109,14 +78,21 @@ int main()
 
 				// get co-oridinates of intersection
 				float t = (-b - sqrt(d)) / (2 * a);
-				float x = camera.x + t * ray.x;
-				float y = camera.y + t * ray.y;
-				float z = camera.z + t * ray.z;
+				Vec3 point = Vec3(
+					camera.x + t * ray.x,
+					camera.y + t * ray.y,
+					camera.z + t * ray.z
+				);
+
+				// calculate sphere surface normal (x, y, z from 0 to 1)
+				Vec3 normal = (sphere.centre - point).normalise();
+				normal = normal + 1.0;
+				normal = normal * 0.5;
 
 				// draw pixels if ray intersects sphere
 				if (d > 0)
 				{
-					DrawPixel(j, i, pixels, windowWidth, windowHeight, 255, 255, 255);
+					DrawPixel(j, i, pixels, windowWidth, windowHeight, normal.x * 255, normal.y * 255, normal.z * 255);
 				}
 				else
 				{
@@ -125,18 +101,17 @@ int main()
 			}
 		}
 
+		window.clear();
+
 		image.create(windowWidth, windowHeight, pixels);
 		texture.loadFromImage(image);
 		sprite.setTexture(texture);
 		window.draw(sprite);
 
-
 		window.display();
 
 		window.setTitle("FPS: " + std::to_string((int)(1.f / (clock.restart().asSeconds() - lastTime))));
-
 		float currentTime = clock.restart().asSeconds();
-		float fps = 1.f / (currentTime - lastTime);
 		lastTime = currentTime;
 		
 	}

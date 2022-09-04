@@ -11,6 +11,5 @@ g++ main.cpp -o out.exe -IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-w
 :: g++ main.cpp -o out.exe -IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -O2 -mwindows -DSFML_STATIC
 
 if exist out.exe (
-	cls
 	out.exe
 )
