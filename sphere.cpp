@@ -3,14 +3,14 @@
 
 #include "vec3.cpp"
 
-struct sphere
+struct Sphere
 {
 	float x;
 	float y;
 	float z;
 	float r;
 
-	sphere()
+	Sphere()
 	{
 		x = 0.0f;
 		y = 0.0f;
@@ -18,7 +18,7 @@ struct sphere
 		r = 1.0f;
 	}
 
-	sphere(float x, float y, float z, float r)
+	Sphere(float x, float y, float z, float r)
 	{
 		this->x = x;
 		this->y = y;
@@ -26,7 +26,7 @@ struct sphere
 		this->r = r;
 	}
 
-	sphere(vec3 pos, float r)
+	Sphere(Vec3 pos, float r)
 	{
 		this->x = pos.x;
 		this->y = pos.y;

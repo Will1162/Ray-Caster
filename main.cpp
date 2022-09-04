@@ -35,10 +35,10 @@ int main()
 	float sphereX = 0.0;
 	float sphereY = 0.0;
 	float sphereZ = 20.0;
-	sphere sphere(sphereX, sphereY, sphereZ, 1.0);
+	Sphere sphere(sphereX, sphereY, sphereZ, 1.0);
 
 	//camera 
-	vec3 camera(0.0, 0.0, 0.0);
+	Vec3 camera(0.0, 0.0, 0.0);
 
 
 	sf::Clock clock;
@@ -86,18 +86,18 @@ int main()
 		sphere.z = sphereZ;
 
 		// pixel to be tested
-		vec3 vector(0.0, 0.0, 5.0);
+		Vec3 pixel(0.0, 0.0, 5.0);
 
 		for (int i = 0; i < windowHeight; i++)
 		{
 			for (int j = 0; j < windowWidth; j++)
 			{
 				// pixel being tested (from -1 to 1 screen space)
-				vector.x = (2 * j) / (float)windowWidth - 1;
-				vector.y = (2 * i) / (float)windowHeight - 1;
+				pixel.x = (2 * j) / (float)windowWidth - 1;
+				pixel.y = (2 * i) / (float)windowHeight - 1;
 
-				// ray vector 
-				vec3 ray = vector - camera;
+				// ray vector
+				Vec3 ray = pixel - camera;
 
 				// ray-sphere intersection
 				float a = ray.x * ray.x + ray.y * ray.y + ray.z * ray.z;
