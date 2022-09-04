@@ -15,8 +15,9 @@ void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeigh
 
 int main()
 {   
-	const int windowWidth = 600;
-	const int windowHeight = 600;
+	const int windowWidth = 800;
+	const int windowHeight = 450;
+	const float aspectRatio = (float)windowHeight / (float)windowWidth;
 	sf::Uint8 pixels[4 * windowWidth * windowHeight];
 
 	sf::Image image;
@@ -33,7 +34,7 @@ int main()
 	window.setFramerateLimit(60);
 
 	// sphere
-	Sphere sphere(0.0, 0.0, 8.0, 1.0);
+	Sphere sphere(0.0, 0.0, 10.0, 1.0);
 
 	// light
 	Light light(-2.0, -3.0, 15.0, 1.0);
@@ -63,7 +64,7 @@ int main()
 			{
 				// pixel being tested (from -1 to 1 screen space)
 				pixel.x = (2 * j) / (float)windowWidth - 1;
-				pixel.y = (2 * i) / (float)windowHeight - 1;
+				pixel.y = ((2 * i) / (float)windowHeight - 1) * aspectRatio;
 
 				// ray vector
 				Vec3 ray = pixel - camera;
