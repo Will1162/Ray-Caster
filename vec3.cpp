@@ -1,5 +1,4 @@
-#ifndef WB_RT_VEC3
-#define WB_RT_VEC3
+#pragma once
 
 struct Vec3
 {
@@ -86,5 +85,3 @@ Vec3 operator/(Vec3 a, float b)
 {
 	return Vec3(a.x / b, a.y / b, a.z / b);
 }
-
-#endif

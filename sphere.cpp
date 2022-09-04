@@ -1,5 +1,4 @@
-#ifndef WB_RT_SPHERE
-#define WB_RT_SPHERE
+#pragma once
 
 #include "vec3.cpp"
 
@@ -38,5 +37,3 @@ struct Sphere
 		centre = Vec3(x, y, z);
 	}
 };
-
-#endif

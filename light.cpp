@@ -1,5 +1,4 @@
-#ifndef WB_RT_LIGHT
-#define WB_RT_LIGHT
+#pragma once
 
 #include "vec3.cpp"
 
@@ -38,5 +37,3 @@ struct Light
 		this->pos = Vec3(x, y, z);
 	}
 };
-
-#endif
