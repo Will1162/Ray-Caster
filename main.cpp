@@ -1,15 +1,24 @@
 #include <math.h>
 #include <SFML/Graphics.hpp>
 
+#include "colour.cpp"
 #include "light.cpp"
 #include "sphere.cpp"
 #include "vec3.cpp"
 
-void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeight, unsigned char r, unsigned char g, unsigned char b)
+void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeight, int r, int g, int b)
 {
-	pixels[(y * windowWidth + x) * 4 + 0] = (int)r;
-	pixels[(y * windowWidth + x) * 4 + 1] = (int)g;
-	pixels[(y * windowWidth + x) * 4 + 2] = (int)b;
+	pixels[(y * windowWidth + x) * 4 + 0] = (unsigned char)r;
+	pixels[(y * windowWidth + x) * 4 + 1] = (unsigned char)g;
+	pixels[(y * windowWidth + x) * 4 + 2] = (unsigned char)b;
+	pixels[(y * windowWidth + x) * 4 + 3] = 255;
+}
+
+void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeight, Colour(col))
+{
+	pixels[(y * windowWidth + x) * 4 + 0] = (unsigned char)col.r;
+	pixels[(y * windowWidth + x) * 4 + 1] = (unsigned char)col.g;
+	pixels[(y * windowWidth + x) * 4 + 2] = (unsigned char)col.b;
 	pixels[(y * windowWidth + x) * 4 + 3] = 255;
 }
 
@@ -18,7 +27,7 @@ bool RaySphereIntersection(Vec3 p0, Vec3 p1, Sphere sphere, Vec3 &intersection)
 	Vec3 d = p1 - p0;
 	float a = d.x * d.x + d.y * d.y + d.z * d.z;
 	float b = 2 * d.x * (p0.x - sphere.x) + 2 * d.y * (p0.y - sphere.y) + 2 * d.z * (p0.z - sphere.z);
-	float c = sphere.x * sphere.x + sphere.y * sphere.y + sphere.z * sphere.z + p0.x * p0.x + p0.y * p0.y + p0.z * p0.z + -2 * (sphere.x * p0.x + sphere.y * p0.y + sphere.z * p0.z) - sphere.r * sphere.r;
+	float c = sphere.x * sphere.x + sphere.y * sphere.y + sphere.z * sphere.z + p0.x * p0.x + p0.y * p0.y + p0.z * p0.z + -2 * (sphere.x * p0.x + sphere.y * p0.y + sphere.z * p0.z) - sphere.rad * sphere.rad;
 
 	float discriminant = b * b - 4 * a * c;
 
@@ -53,7 +62,7 @@ int main()
 	window.setFramerateLimit(60);
 
 	// sphere
-	Sphere sphere(0.0, 0.0, 6.0, 1.0);
+	Sphere sphere(Vec3(0.0, 0.0, 6.0), 1.0, Colour(255, 128, 64));
 
 	// light
 	Light light(-2.0, -3.0, 2.0, 1.0);
@@ -90,9 +99,9 @@ int main()
 				{
 					// calculate sphere surface normal (x, y, z from 0 to 1)
 					Vec3 normal(
-						(intersectionPoint.x - sphere.x) / sphere.r,
-						(intersectionPoint.y - sphere.y) / sphere.r,
-						(intersectionPoint.z - sphere.z) / sphere.r
+						(intersectionPoint.x - sphere.x) / sphere.rad,
+						(intersectionPoint.y - sphere.y) / sphere.rad,
+						(intersectionPoint.z - sphere.z) / sphere.rad
 					);
 
 					// unit vector pointing from intersection to light
@@ -102,13 +111,18 @@ int main()
 					float factor = cos(normal.AngleBetween(lightDir));
 					float kd = 0.8;
 					float ka = 0.2;
-					float col = (kd * factor + ka) * 255;
+					//float col = (kd * factor + ka) * 255;
+					Colour col(
+						(kd * factor + ka) * sphere.col.r,
+						(kd * factor + ka) * sphere.col.g,
+						(kd * factor + ka) * sphere.col.b
+					);
 					
-					DrawPixel(j, i, pixels, windowWidth, windowHeight, col, col, col);
+					DrawPixel(j, i, pixels, windowWidth, windowHeight, col);
 				}
 				else
 				{
-					DrawPixel(j, i, pixels, windowWidth, windowHeight, 0, 0, 0);
+					DrawPixel(j, i, pixels, windowWidth, windowHeight, Colour(0));
 				}
 			}
 		}
