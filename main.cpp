@@ -13,6 +13,25 @@ void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeigh
 	pixels[(y * windowWidth + x) * 4 + 3] = 255;
 }
 
+bool RaySphereIntersection(Vec3 p0, Vec3 p1, Sphere sphere, Vec3 &intersection)
+{
+	Vec3 d = p1 - p0;
+	float a = d.x * d.x + d.y * d.y + d.z * d.z;
+	float b = 2 * d.x * (p0.x - sphere.x) + 2 * d.y * (p0.y - sphere.y) + 2 * d.z * (p0.z - sphere.z);
+	float c = sphere.x * sphere.x + sphere.y * sphere.y + sphere.z * sphere.z + p0.x * p0.x + p0.y * p0.y + p0.z * p0.z + -2 * (sphere.x * p0.x + sphere.y * p0.y + sphere.z * p0.z) - sphere.r * sphere.r;
+
+	float discriminant = b * b - 4 * a * c;
+
+	if (discriminant > 0)
+	{
+		float t = (-b - sqrt(discriminant)) / (2 * a);
+		intersection = p0 + d * t;
+		return true;
+	}
+
+	return false;
+}
+
 int main()
 {   
 	const int windowWidth = 600;
@@ -66,44 +85,25 @@ int main()
 				pixel.x = (2 * j) / (float)windowWidth - 1;
 				pixel.y = ((2 * i) / (float)windowHeight - 1) * aspectRatio;
 
-				// ray vector
-				Vec3 ray = pixel - camera;
-
-				// ray-sphere intersection
-				float a = ray.x * ray.x + ray.y * ray.y + ray.z * ray.z;
-				float b = 2 * (ray.x * (camera.x - sphere.x) + ray.y * (camera.y - sphere.y) + ray.z * (camera.z - sphere.z));
-				float c = sphere.x * sphere.x + sphere.y * sphere.y + sphere.z * sphere.z + camera.x * camera.x + camera.y * camera.y + camera.z * camera.z - 2 * (sphere.x * camera.x + sphere.y * camera.y + sphere.z * camera.z) - sphere.r * sphere.r;
-
-				// discriminant
-				float d = b * b - 4 * a * c;
-
-				// get co-oridinates of intersection
-				float t = (-b - sqrt(d)) / (2 * a);
-				Vec3 point = Vec3(
-					camera.x + t * ray.x,
-					camera.y + t * ray.y,
-					camera.z + t * ray.z
-				);
-
-				// calculate sphere surface normal (x, y, z from 0 to 1)
-				Vec3 normal(
-					(point.x - sphere.x) / sphere.r,
-					(point.y - sphere.y) / sphere.r,
-					(point.z - sphere.z) / sphere.r
-				);
-
-				// unit vector pointing from intersection to light
-				Vec3 lightDir = (light.pos - point).Normalise();
-
-				// calculate diffuse lighting
-				float factor = cos(normal.AngleBetween(lightDir));
-				float kd = 0.8;
-				float ka = 0.2;
-				float col = (kd * factor + ka) * 255;
-
-				// draw pixels if ray intersects sphere
-				if (d > 0)
+				Vec3 intersectionPoint;
+				if (RaySphereIntersection(camera, pixel, sphere, intersectionPoint))
 				{
+					// calculate sphere surface normal (x, y, z from 0 to 1)
+					Vec3 normal(
+						(intersectionPoint.x - sphere.x) / sphere.r,
+						(intersectionPoint.y - sphere.y) / sphere.r,
+						(intersectionPoint.z - sphere.z) / sphere.r
+					);
+
+					// unit vector pointing from intersection to light
+					Vec3 lightDir = (light.pos - intersectionPoint).Normalise();
+
+					// calculate diffuse lighting
+					float factor = cos(normal.AngleBetween(lightDir));
+					float kd = 0.8;
+					float ka = 0.2;
+					float col = (kd * factor + ka) * 255;
+					
 					DrawPixel(j, i, pixels, windowWidth, windowHeight, col, col, col);
 				}
 				else
