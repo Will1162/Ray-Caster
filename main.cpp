@@ -22,31 +22,46 @@ void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeigh
 	pixels[(y * windowWidth + x) * 4 + 3] = 255;
 }
 
-bool RaySphereIntersection(Vec3 p0, Vec3 p1, Sphere sphere, Vec3 &intersection)
+bool RaySphereIntersection(Vec3 p0, Vec3 p1, Sphere sphereList[], int sphereCount, Vec3 &intersection, int &sphereHitIndex)
 {
-	Vec3 d = p1 - p0;
-	float a = d.x * d.x + d.y * d.y + d.z * d.z;
-	float b = 2 * d.x * (p0.x - sphere.x) + 2 * d.y * (p0.y - sphere.y) + 2 * d.z * (p0.z - sphere.z);
-	float c = sphere.x * sphere.x + sphere.y * sphere.y + sphere.z * sphere.z + p0.x * p0.x + p0.y * p0.y + p0.z * p0.z + -2 * (sphere.x * p0.x + sphere.y * p0.y + sphere.z * p0.z) - sphere.rad * sphere.rad;
-
-	float discriminant = b * b - 4 * a * c;
-
-	if (discriminant > 0)
+	float closestT = 1000000.0f;
+	for (int i = 0; i < sphereCount; i++)
 	{
-		float t = (-b - sqrt(discriminant)) / (2 * a);
-		intersection = p0 + d * t;
-		return true;
+		Vec3 d = p1 - p0;
+		float a = d.x * d.x + d.y * d.y + d.z * d.z;
+		float b = 2 * d.x * (p0.x - sphereList[i].x) + 2 * d.y * (p0.y - sphereList[i].y) + 2 * d.z * (p0.z - sphereList[i].z);
+		float c = sphereList[i].x * sphereList[i].x + sphereList[i].y * sphereList[i].y + sphereList[i].z * sphereList[i].z + p0.x * p0.x + p0.y * p0.y + p0.z * p0.z + -2 * (sphereList[i].x * p0.x + sphereList[i].y * p0.y + sphereList[i].z * p0.z) - sphereList[i].rad * sphereList[i].rad;
+
+		float discriminant = b * b - 4 * a * c;
+
+		if (discriminant >= 0)
+		{
+			float t = (-b - sqrt(discriminant)) / (2 * a);
+
+			if (t < closestT)
+			{
+				closestT = t;
+				sphereHitIndex = i;
+				intersection = p0 + d * t;
+			}
+		}
 	}
 
+	if (closestT < 1000000.0f)
+	{
+		return true;
+	}
 	return false;
 }
 
 int main()
-{   
+{
 	const int windowWidth = 600;
 	const int windowHeight = 600;
 	const float aspectRatio = (float)windowHeight / (float)windowWidth;
 	sf::Uint8 pixels[4 * windowWidth * windowHeight];
+
+	Colour backgroundCol(153, 195, 255);
 
 	sf::Image image;
 	image.create(windowWidth, windowHeight, pixels);
@@ -61,14 +76,22 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Window", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(60);
 
-	// sphere
-	Sphere sphere(Vec3(0.0, 0.0, 6.0), 1.0, Colour(255, 128, 64));
+	// list of all spheres in the scene
+	Sphere sphereList[] = 
+	{
+		Sphere(Vec3(-0.8, -0.8, 5.0), 1.0, Colour(255, 128, 64)), // orange
+		Sphere(Vec3(-1.8, 1.8, 10.0), 1.0, Colour(64, 255, 128)), // green
+		Sphere(Vec3(1.0, 0.5, 5.25), 1.0, Colour(128, 64, 255)), // blue
+	};
+
+	// how many spheres
+	int sphereCount = sizeof(sphereList) / sizeof(Sphere);
 
 	// light
-	Light light(-2.0, -3.0, 2.0, 1.0);
+	Light light(-10.0, -7.0, 4.0, 1.0);
 
 	//camera 
-	Vec3 camera(0.0, 0.0, 0.0);
+	Vec3 camera(0.0, 0.0, -5.0);
 
 
 	sf::Clock clock;
@@ -84,7 +107,7 @@ int main()
 		}
 
 		// pixel to be tested
-		Vec3 pixel(0.0, 0.0, 5.0);
+		Vec3 pixel(0.0, 0.0, 0.0);
 
 		for (int i = 0; i < windowHeight; i++)
 		{
@@ -95,13 +118,14 @@ int main()
 				pixel.y = ((2 * i) / (float)windowHeight - 1) * aspectRatio;
 
 				Vec3 intersectionPoint;
-				if (RaySphereIntersection(camera, pixel, sphere, intersectionPoint))
+				int sphereHitIndex;
+				if (RaySphereIntersection(camera, pixel, sphereList, sphereCount, intersectionPoint, sphereHitIndex))
 				{
 					// calculate sphere surface normal (x, y, z from 0 to 1)
 					Vec3 normal(
-						(intersectionPoint.x - sphere.x) / sphere.rad,
-						(intersectionPoint.y - sphere.y) / sphere.rad,
-						(intersectionPoint.z - sphere.z) / sphere.rad
+						(intersectionPoint.x - sphereList[sphereHitIndex].x) / sphereList[sphereHitIndex].rad,
+						(intersectionPoint.y - sphereList[sphereHitIndex].y) / sphereList[sphereHitIndex].rad,
+						(intersectionPoint.z - sphereList[sphereHitIndex].z) / sphereList[sphereHitIndex].rad
 					);
 
 					// unit vector pointing from intersection to light
@@ -111,18 +135,26 @@ int main()
 					float factor = cos(normal.AngleBetween(lightDir));
 					float kd = 0.8;
 					float ka = 0.2;
-					//float col = (kd * factor + ka) * 255;
+
 					Colour col(
-						(kd * factor + ka) * sphere.col.r,
-						(kd * factor + ka) * sphere.col.g,
-						(kd * factor + ka) * sphere.col.b
+						(kd * factor + ka) * sphereList[sphereHitIndex].col.r,
+						(kd * factor + ka) * sphereList[sphereHitIndex].col.g,
+						(kd * factor + ka) * sphereList[sphereHitIndex].col.b
 					);
 					
 					DrawPixel(j, i, pixels, windowWidth, windowHeight, col);
 				}
 				else
 				{
-					DrawPixel(j, i, pixels, windowWidth, windowHeight, Colour(0));
+					// pixel is in background
+					if (RaySphereIntersection(pixel, light.pos, sphereList, sphereCount, intersectionPoint, sphereHitIndex))
+					{
+						DrawPixel(j, i, pixels, windowWidth, windowHeight, backgroundCol / 2);
+					}
+					else
+					{
+						DrawPixel(j, i, pixels, windowWidth, windowHeight, backgroundCol);
+					}
 				}
 			}
 		}
