@@ -20,29 +20,35 @@ struct Vec3
 		this->z = z;
 	}
 
-	float length()
+	float Length()
 	{
 		return sqrt(x * x + y * y + z * z);
 	}
 
-	Vec3 normalise()
+	Vec3 Normalise()
 	{
-		float len = length();
+		float len = Length();
 		return Vec3(x / len, y / len, z / len);
 	}
 
-	float dotProduct(Vec3 other)
+	float Dot(Vec3 other)
 	{
 		return x * other.x + y * other.y + z * other.z;
 	}
 
-	Vec3 crossProduct(Vec3 other)
+	Vec3 Cross(Vec3 other)
 	{
 		return Vec3(
 			y * other.z - z * other.y,
 			x * other.z - z * other.x,
 			x * other.y - y * other.x
 		);
+	}
+
+	float AngleBetween(Vec3 other)
+	{
+		float lenProduct = Length() * other.Length();
+		return acos(Dot(other) / lenProduct);
 	}
 };
 

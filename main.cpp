@@ -15,8 +15,8 @@ void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeigh
 
 int main()
 {   
-	const int windowWidth = 800;
-	const int windowHeight = 450;
+	const int windowWidth = 600;
+	const int windowHeight = 600;
 	const float aspectRatio = (float)windowHeight / (float)windowWidth;
 	sf::Uint8 pixels[4 * windowWidth * windowHeight];
 
@@ -34,10 +34,10 @@ int main()
 	window.setFramerateLimit(60);
 
 	// sphere
-	Sphere sphere(0.0, 0.0, 10.0, 1.0);
+	Sphere sphere(0.0, 0.0, 6.0, 1.0);
 
 	// light
-	Light light(-2.0, -3.0, 15.0, 1.0);
+	Light light(-2.0, -3.0, 2.0, 1.0);
 
 	//camera 
 	Vec3 camera(0.0, 0.0, 0.0);
@@ -86,14 +86,25 @@ int main()
 				);
 
 				// calculate sphere surface normal (x, y, z from 0 to 1)
-				Vec3 normal = (sphere.centre - point).normalise();
-				normal = normal + 1.0;
-				normal = normal * 0.5;
+				Vec3 normal(
+					(point.x - sphere.x) / sphere.r,
+					(point.y - sphere.y) / sphere.r,
+					(point.z - sphere.z) / sphere.r
+				);
+
+				// unit vector pointing from intersection to light
+				Vec3 lightDir = (light.pos - point).Normalise();
+
+				// calculate diffuse lighting
+				float factor = cos(normal.AngleBetween(lightDir));
+				float kd = 0.8;
+				float ka = 0.2;
+				float col = (kd * factor + ka) * 255;
 
 				// draw pixels if ray intersects sphere
 				if (d > 0)
 				{
-					DrawPixel(j, i, pixels, windowWidth, windowHeight, normal.x * 255, normal.y * 255, normal.z * 255);
+					DrawPixel(j, i, pixels, windowWidth, windowHeight, col, col, col);
 				}
 				else
 				{
