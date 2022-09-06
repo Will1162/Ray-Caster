@@ -22,27 +22,30 @@ void DrawPixel(int x, int y, sf::Uint8 *pixels, int windowWidth, int windowHeigh
 	pixels[(y * windowWidth + x) * 4 + 3] = 255;
 }
 
-bool RaySphereIntersection(Vec3 p0, Vec3 p1, Sphere sphereList[], int sphereCount, Vec3 &intersection, int &sphereHitIndex)
+bool RaySphereIntersection(Vec3 p0, Vec3 p1, Sphere sphereList[], int sphereCount, Vec3 &intersection, int &sphereHitIndex, int ignoreIndex = -1)
 {
 	float closestT = 1000000.0f;
 	for (int i = 0; i < sphereCount; i++)
 	{
-		Vec3 d = p1 - p0;
-		float a = d.x * d.x + d.y * d.y + d.z * d.z;
-		float b = 2 * d.x * (p0.x - sphereList[i].x) + 2 * d.y * (p0.y - sphereList[i].y) + 2 * d.z * (p0.z - sphereList[i].z);
-		float c = sphereList[i].x * sphereList[i].x + sphereList[i].y * sphereList[i].y + sphereList[i].z * sphereList[i].z + p0.x * p0.x + p0.y * p0.y + p0.z * p0.z + -2 * (sphereList[i].x * p0.x + sphereList[i].y * p0.y + sphereList[i].z * p0.z) - sphereList[i].rad * sphereList[i].rad;
-
-		float discriminant = b * b - 4 * a * c;
-
-		if (discriminant >= 0)
+		if (i != ignoreIndex)
 		{
-			float t = (-b - sqrt(discriminant)) / (2 * a);
+			Vec3 d = p1 - p0;
+			float a = d.x * d.x + d.y * d.y + d.z * d.z;
+			float b = 2 * d.x * (p0.x - sphereList[i].x) + 2 * d.y * (p0.y - sphereList[i].y) + 2 * d.z * (p0.z - sphereList[i].z);
+			float c = sphereList[i].x * sphereList[i].x + sphereList[i].y * sphereList[i].y + sphereList[i].z * sphereList[i].z + p0.x * p0.x + p0.y * p0.y + p0.z * p0.z + -2 * (sphereList[i].x * p0.x + sphereList[i].y * p0.y + sphereList[i].z * p0.z) - sphereList[i].rad * sphereList[i].rad;
 
-			if (t < closestT)
+			float discriminant = b * b - 4 * a * c;
+
+			if (discriminant >= 0)
 			{
-				closestT = t;
-				sphereHitIndex = i;
-				intersection = p0 + d * t;
+				float t = (-b - sqrt(discriminant)) / (2 * a);
+
+				if (t < closestT)
+				{
+					closestT = t;
+					sphereHitIndex = i;
+					intersection = p0 + d * t;
+				}
 			}
 		}
 	}
@@ -79,25 +82,58 @@ int main()
 	// list of all spheres in the scene
 	Sphere sphereList[] = 
 	{
-		Sphere(Vec3(-0.8, -0.8, 5.0), 1.0, Colour(255, 128, 64)), // orange
-		Sphere(Vec3(-1.8, 1.8, 10.0), 1.0, Colour(64, 255, 128)), // green
-		Sphere(Vec3(1.0, 0.5, 5.25), 1.0, Colour(128, 64, 255)), // blue
+		Sphere(Vec3(-0.8, -0.8, 8.0), 1.0, Colour(255, 128, 64)), // orange
+		Sphere(Vec3(-0.8, 0.2, 7.0), 1.0, Colour(64, 255, 128)), // green
+		Sphere(Vec3(1.2, 0.5, 7.75), 1.0, Colour(128, 64, 255)), // purple
+		Sphere(Vec3(0.0, 10.0, 30.0), 1.0, Colour(255, 255, 255)), // white
 	};
 
-	// how many spheres
 	int sphereCount = sizeof(sphereList) / sizeof(Sphere);
 
 	// light
-	Light light(-10.0, -7.0, 4.0, 1.0);
+	Light light(0, 5, 2, 1.0);
 
 	//camera 
-	Vec3 camera(0.0, 0.0, -5.0);
+	Vec3 camera(0.0, 0.0, 0.0);
 
 
 	sf::Clock clock;
 	float lastTime = 0;
 	while (window.isOpen())
 	{
+		// keyboard input
+		float speed = 0.1;
+		Vec3 oldPos = camera;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        {
+            camera.x -= speed;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        {
+            camera.x += speed;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            camera.y -= speed;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+        {
+            camera.y += speed;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        {
+            camera.z -= speed;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        {
+            camera.z += speed;
+        }
+		if (camera != oldPos)
+		{
+			printf("camera: %f, %f, %f\n", camera.x, camera.y, camera.z);
+		}
+	
+
 		// window event handling
 		sf::Event event;
 		while (window.pollEvent(event))
@@ -106,59 +142,60 @@ int main()
 				window.close();
 		}
 
-		// pixel to be tested
-		Vec3 pixel(0.0, 0.0, 0.0);
-
+		// render calculations
 		for (int i = 0; i < windowHeight; i++)
 		{
 			for (int j = 0; j < windowWidth; j++)
 			{
-				// pixel being tested (from -1 to 1 screen space)
-				pixel.x = (2 * j) / (float)windowWidth - 1;
-				pixel.y = ((2 * i) / (float)windowHeight - 1) * aspectRatio;
+				// set up two points to define a ray
+				Vec3 p0 = camera;
+				Vec3 p1 = Vec3(
+					(j - windowWidth / 2) / (float)windowWidth + camera.x,
+					(i - windowHeight / 2) / (float)windowWidth * aspectRatio + camera.y,
+					camera.z + 1.0
+				);
 
-				Vec3 intersectionPoint;
-				int sphereHitIndex;
-				if (RaySphereIntersection(camera, pixel, sphereList, sphereCount, intersectionPoint, sphereHitIndex))
+				// find the closest sphere that the ray intersects
+				Vec3 intersectionPos;
+				int sphereHitIndex = -1;
+				if (RaySphereIntersection(p0, p1, sphereList, sphereCount, intersectionPos, sphereHitIndex))
 				{
-					// calculate sphere surface normal (x, y, z from 0 to 1)
+					// calculate the normal of the sphere at the intersection point
 					Vec3 normal(
-						(intersectionPoint.x - sphereList[sphereHitIndex].x) / sphereList[sphereHitIndex].rad,
-						(intersectionPoint.y - sphereList[sphereHitIndex].y) / sphereList[sphereHitIndex].rad,
-						(intersectionPoint.z - sphereList[sphereHitIndex].z) / sphereList[sphereHitIndex].rad
+						(intersectionPos.x - sphereList[sphereHitIndex].x) / sphereList[sphereHitIndex].rad,
+						(intersectionPos.y - sphereList[sphereHitIndex].y) / sphereList[sphereHitIndex].rad,
+						(intersectionPos.z - sphereList[sphereHitIndex].z) / sphereList[sphereHitIndex].rad
 					);
 
-					// unit vector pointing from intersection to light
-					Vec3 lightDir = (light.pos - intersectionPoint).Normalise();
+					// calculate the light direction
+					Vec3 lightDir = (light.pos - intersectionPos).Normalise();
 
-					// calculate diffuse lighting
+					// how much light should be reflected
 					float factor = cos(normal.AngleBetween(lightDir));
-					float kd = 0.8;
-					float ka = 0.2;
 
+					// material properties
+					float kd = 0.8; // diffuse
+					float ka = 0.2; // ambient
+
+					// calculate the colour of the pixel
 					Colour col(
 						(kd * factor + ka) * sphereList[sphereHitIndex].col.r,
 						(kd * factor + ka) * sphereList[sphereHitIndex].col.g,
 						(kd * factor + ka) * sphereList[sphereHitIndex].col.b
 					);
-					
+
+					// set the pixel colour
 					DrawPixel(j, i, pixels, windowWidth, windowHeight, col);
 				}
 				else
 				{
-					// pixel is in background
-					if (RaySphereIntersection(pixel, light.pos, sphereList, sphereCount, intersectionPoint, sphereHitIndex))
-					{
-						DrawPixel(j, i, pixels, windowWidth, windowHeight, backgroundCol / 2);
-					}
-					else
-					{
-						DrawPixel(j, i, pixels, windowWidth, windowHeight, backgroundCol);
-					}
+					// draw background
+					DrawPixel(j, i, pixels, windowWidth, windowHeight, backgroundCol);
 				}
 			}
 		}
 
+		// render
 		window.clear();
 
 		image.create(windowWidth, windowHeight, pixels);

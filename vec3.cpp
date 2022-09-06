@@ -1,5 +1,7 @@
 #pragma once
 
+#include <math.h>
+
 struct Vec3
 {
 	float x;
@@ -90,4 +92,14 @@ Vec3 operator/(Vec3 a, Vec3 b)
 Vec3 operator/(Vec3 a, float b)
 {
 	return Vec3(a.x / b, a.y / b, a.z / b);
+}
+
+bool operator==(Vec3 a, Vec3 b)
+{
+	return (a.x == b.x) && (a.y == b.y) && (a.z == b.z);
+}
+
+bool operator!=(Vec3 a, Vec3 b)
+{
+	return (a.x != b.x) && (a.y != b.y) && (a.z != b.z);
 }
