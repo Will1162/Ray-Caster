@@ -59,7 +59,7 @@ Colour operator+(Colour a, Colour b)
 	return Colour(a.r + b.r, a.g + b.g, a.b + b.b);
 }
 
-Colour operator+(Colour a, int b)
+Colour operator+(Colour a, float b)
 {
 	return Colour(a.r + b, a.g + b, a.b + b);
 }
@@ -69,7 +69,7 @@ Colour operator-(Colour a, Colour b)
 	return Colour(a.r - b.r, a.g - b.g, a.b - b.b);
 }
 
-Colour operator-(Colour a, int b)
+Colour operator-(Colour a, float b)
 {
 	return Colour(a.r - b, a.g - b, a.b - b);
 }
@@ -79,7 +79,7 @@ Colour operator*(Colour a, Colour b)
 	return Colour(a.r * b.r, a.g * b.g, a.b * b.b);
 }
 
-Colour operator*(Colour a, int b)
+Colour operator*(Colour a, float b)
 {
 	return Colour(a.r * b, a.g * b, a.b * b);
 }
@@ -89,7 +89,7 @@ Colour operator/(Colour a, Colour b)
 	return Colour(a.r / b.r, a.g / b.g, a.b / b.b);
 }
 
-Colour operator/(Colour a, int b)
+Colour operator/(Colour a, float b)
 {
 	return Colour(a.r / b, a.g / b, a.b / b);
 }
