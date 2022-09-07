@@ -11,8 +11,8 @@ int main()
 	const float aspectRatio = (float)windowHeight / (float)windowWidth;
 	sf::Uint8 pixels[4 * windowWidth * windowHeight];
 
-	Colour backgroundCol(153, 195, 255);
-	// TODO background gradient
+	Colour topBackgroundCol(173, 200, 255);
+	Colour bottomBackgroundCol(107, 171, 255);
 
 	sf::Image image;
 	image.create(windowWidth, windowHeight, pixels);
@@ -49,6 +49,14 @@ int main()
 	float lastTime = 0;
 	while (window.isOpen())
 	{
+		// window event handling
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
+
 		// keyboard input
 		float speed = 0.1;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
@@ -64,15 +72,6 @@ int main()
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             camera.z += speed;
 		printf("camera: %f, %f, %f\n", camera.x, camera.y, camera.z);
-	
-
-		// window event handling
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
 
 		// render calculations
 		for (int i = 0; i < windowHeight; i++)
@@ -132,6 +131,7 @@ int main()
 				else
 				{
 					// draw background
+					Colour backgroundCol = topBackgroundCol.Lerp(bottomBackgroundCol, (float)i / windowHeight);
 					DrawPixel(j, i, pixels, windowWidth, windowHeight, backgroundCol);
 				}
 			}
@@ -139,14 +139,13 @@ int main()
 
 		// render
 		window.clear();
-
 		image.create(windowWidth, windowHeight, pixels);
 		texture.loadFromImage(image);
 		sprite.setTexture(texture);
 		window.draw(sprite);
-
 		window.display();
 
+		// fps counter
 		window.setTitle("FPS: " + std::to_string((int)(1.f / (clock.restart().asSeconds() - lastTime))));
 		float currentTime = clock.restart().asSeconds();
 		lastTime = currentTime;

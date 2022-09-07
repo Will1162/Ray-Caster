@@ -35,6 +35,11 @@ struct Colour
 		this->g = ClampRGBVal(g);
 		this->b = ClampRGBVal(b);
 	}
+
+	Colour Lerp(Colour c, float t)
+	{
+		return Colour(r + (c.r - r) * t, g + (c.g - g) * t, b + (c.b - b) * t);
+	}
 };
 
 Colour ClampRGB(Colour col)
