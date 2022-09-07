@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 
+#include "camera.cpp"
 #include "colour.cpp"
 #include "light.cpp"
 #include "sphere.cpp"
@@ -9,9 +10,9 @@
 int main()
 {
 	// window properties
-	const int windowWidth = 600;
-	const int windowHeight = 600;
-	const float aspectRatio = (float)windowHeight / (float)windowWidth;
+	const int windowWidth = 800;
+	const int windowHeight = 450;
+	const float aspectRatio = (float)windowWidth / (float)windowHeight;
 	sf::Uint8 pixels[4 * windowWidth * windowHeight];
 
 	// background colours
@@ -46,7 +47,7 @@ int main()
 	Light light(-5, -5, 5, 1.0);
 
 	//camera 
-	Vec3 camera(0.0, 0.0, 0.0);
+	Camera camera(Vec3(0.0, 0.0, 0.0), 90.0);
 
 	// fps counter
 	sf::Clock clock;
@@ -65,17 +66,17 @@ int main()
 		// keyboard input
 		float speed = 0.1;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            camera.x -= speed;
+            camera.pos.x -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            camera.x += speed;
+            camera.pos.x += speed;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-            camera.y -= speed;
+            camera.pos.y -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-            camera.y += speed;
+            camera.pos.y += speed;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            camera.z -= speed;
+            camera.pos.z -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            camera.z += speed;
+            camera.pos.z += speed;
 		//printf("camera: %f, %f, %f\n", camera.x, camera.y, camera.z);
 
 		// render calculations
@@ -84,11 +85,11 @@ int main()
 			for (int j = 0; j < windowWidth; j++)
 			{
 				// set up two points to define a single ray
-				Vec3 p0 = camera;
+				Vec3 p0 = camera.pos;
 				Vec3 p1 = Vec3(
-					(j - windowWidth / 2) / (float)windowWidth + camera.x,
-					(i - windowHeight / 2) / (float)windowWidth * aspectRatio + camera.y,
-					camera.z + 1.0
+					(j - windowWidth / 2) / (float)windowWidth + camera.pos.x,
+					(i - windowHeight / 2) / (float)windowHeight / aspectRatio + camera.pos.y,
+					camera.pos.z + camera.focalLength
 				);
 
 				// find the closest sphere that the ray intersects
@@ -131,7 +132,7 @@ int main()
 					{
 						// if the point is not in shadow, draw it normally, also with phong highlights
 						// calculate the reflection vector
-						Vec3 cameraDir = (camera - intersectionPos).Normalise();
+						Vec3 cameraDir = (camera.pos - intersectionPos).Normalise();
 						Vec3 halfway = (lightDir + cameraDir).Normalise();
 
 						// material properties
