@@ -1,72 +1,32 @@
 #pragma once
 
-#include "vec3.cpp"
-
-int ClampRGBVal(int i)
-{
-	if (i > 255)
-		i = 255;
-	if (i < 0)
-		i = 0;
-	return i;
-}
-
 struct Colour
 {
-	int r;
-	int g;
-	int b;
-
-	Colour()
-	{
-		r = 0;
-		g = 0;
-		b = 0;
-	}
-
-	Colour(int i)
-	{
-		r = ClampRGBVal(i);
-		g = ClampRGBVal(i);
-		b = ClampRGBVal(i);
-	}
+	int r, g, b;
 
 	Colour(int r, int g, int b)
 	{
-		this->r = ClampRGBVal(r);
-		this->g = ClampRGBVal(g);
-		this->b = ClampRGBVal(b);
-	}
-
-	Colour(Vec3 col)
-	{
-		r = ClampRGBVal(col.x);
-		g = ClampRGBVal(col.y);
-		b = ClampRGBVal(col.z);
+		this->r = r;
+		this->g = g;
+		this->b = b;
+		Clamp();
 	}
 
 	Colour Lerp(Colour c, float t)
 	{
 		return Colour(r + (c.r - r) * t, g + (c.g - g) * t, b + (c.b - b) * t);
 	}
-};
 
-Colour ClampRGB(Colour col)
-{
-	if (col.r > 255)
-		col.r = 255;
-	if (col.g > 255)
-		col.g = 255;
-	if (col.b > 255)
-		col.b = 255;
-	if (col.r < 0)
-		col.r = 0;
-	if (col.g < 0)
-		col.g = 0;
-	if (col.b < 0)
-		col.b = 0;
-	return col;
-}
+	void Clamp()
+	{
+		if (r > 255) r = 255;
+		if (g > 255) g = 255;
+		if (b > 255) b = 255;
+		if (r < 0) r = 0;
+		if (g < 0) g = 0;
+		if (b < 0) b = 0;
+	}
+};
 
 Colour operator+(Colour a, Colour b)
 {
@@ -78,29 +38,9 @@ Colour operator+(Colour a, float b)
 	return Colour(a.r + b, a.g + b, a.b + b);
 }
 
-Colour operator-(Colour a, Colour b)
-{
-	return Colour(a.r - b.r, a.g - b.g, a.b - b.b);
-}
-
-Colour operator-(Colour a, float b)
-{
-	return Colour(a.r - b, a.g - b, a.b - b);
-}
-
-Colour operator*(Colour a, Colour b)
-{
-	return Colour(a.r * b.r, a.g * b.g, a.b * b.b);
-}
-
 Colour operator*(Colour a, float b)
 {
 	return Colour(a.r * b, a.g * b, a.b * b);
-}
-
-Colour operator/(Colour a, Colour b)
-{
-	return Colour(a.r / b.r, a.g / b.g, a.b / b.b);
 }
 
 Colour operator/(Colour a, float b)

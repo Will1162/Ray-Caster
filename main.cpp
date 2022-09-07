@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include <SFML/Graphics.hpp>
 
 #include "camera.cpp"
@@ -10,8 +12,8 @@
 int main()
 {
 	// window properties
-	const int windowWidth = 800;
-	const int windowHeight = 450;
+	const int windowWidth = 600;
+	const int windowHeight = 600;
 	const float aspectRatio = (float)windowWidth / (float)windowHeight;
 	sf::Uint8 pixels[4 * windowWidth * windowHeight];
 
@@ -25,7 +27,7 @@ int main()
 	sf::Sprite sprite;
 	image.create(windowWidth, windowHeight, pixels);
 	texture.loadFromImage(image);
-	sprite.setPosition(0, 0);
+	sprite.setPosition(0.0f, 0.0f);
 	sprite.setTexture(texture);
 
 	// window creation
@@ -35,23 +37,23 @@ int main()
 	// list of all spheres in the scene
 	Sphere sphereList[] = 
 	{
-		Sphere(Vec3(-0.8, -0.8, 9.0), 1.0, Colour(255, 128, 64)), // orange
-		Sphere(Vec3(-0.8, 0.2, 7.0), 1.0, Colour(64, 255, 128)), // green
-		Sphere(Vec3(1.2, 0.5, 7.75), 1.0, Colour(128, 64, 255)), // purple
-		Sphere(Vec3(0.0, 10.0, 30.0), 1.0, Colour(255, 255, 255)), // white
+		Sphere(Vec3(-0.8f, -0.8f, 9.0f), 1.0f, Colour(255, 128, 64)), // orange
+		Sphere(Vec3(-0.8f, 0.2f, 7.0f), 1.0f, Colour(64, 255, 128)), // green
+		Sphere(Vec3(1.2f, 0.5f, 7.75f), 1.0f, Colour(128, 64, 255)), // purple
+		Sphere(Vec3(0.0f, 10.0f, 30.0f), 1.0f, Colour(255, 255, 255)), // white
 	};
 
-	int sphereCount = sizeof(sphereList) / sizeof(Sphere);
+	const int sphereCount = sizeof(sphereList) / sizeof(Sphere);
 
 	// light
-	Light light(-5, -5, 5, 1.0);
+	Light light(Vec3(-5.0f, -5.0f, 5.0f));
 
 	//camera 
-	Camera camera(Vec3(0.0, 0.0, 0.0), 90.0);
+	Camera camera(Vec3(0.0f, 0.0f, 0.0f), 90.0f);
 
 	// fps counter
 	sf::Clock clock;
-	float lastTime = 0;
+	float lastTime = 0.0f;
 
 	while (window.isOpen())
 	{
@@ -64,7 +66,7 @@ int main()
 		}
 
 		// keyboard input
-		float speed = 0.1;
+		float speed = 0.1f;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             camera.pos.x -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
@@ -77,7 +79,6 @@ int main()
             camera.pos.z -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             camera.pos.z += speed;
-		//printf("camera: %f, %f, %f\n", camera.x, camera.y, camera.z);
 
 		// render calculations
 		for (int i = 0; i < windowHeight; i++)
@@ -93,15 +94,15 @@ int main()
 				);
 
 				// find the closest sphere that the ray intersects
-				Vec3 intersectionPos;
+				Vec3 intersectionPos(0.0f, 0.0f, 0.0f);
 				int sphereHitIndex = -1;
 				if (RaySphereIntersection(p0, p1, sphereList, sphereCount, intersectionPos, sphereHitIndex))
 				{
 					// calculate the normal of the sphere at the intersection point
 					Vec3 normal(
-						(intersectionPos.x - sphereList[sphereHitIndex].x) / sphereList[sphereHitIndex].rad,
-						(intersectionPos.y - sphereList[sphereHitIndex].y) / sphereList[sphereHitIndex].rad,
-						(intersectionPos.z - sphereList[sphereHitIndex].z) / sphereList[sphereHitIndex].rad
+						(intersectionPos.x - sphereList[sphereHitIndex].pos.x) / sphereList[sphereHitIndex].rad,
+						(intersectionPos.y - sphereList[sphereHitIndex].pos.y) / sphereList[sphereHitIndex].rad,
+						(intersectionPos.z - sphereList[sphereHitIndex].pos.z) / sphereList[sphereHitIndex].rad
 					);
 
 					// calculate the light direction
@@ -111,8 +112,8 @@ int main()
 					float factor = cos(normal.AngleBetween(lightDir));
 
 					// material properties
-					float kd = 0.8; // diffuse
-					float ka = 0.2; // ambient
+					float kd = 0.8f; // diffuse
+					float ka = 0.2f; // ambient
 
 					// calculate the colour of the pixel
 					Colour col(
@@ -126,7 +127,7 @@ int main()
 					if (SpherePointInShadow(intersectionPos, light, sphereList, sphereCount, originalSphereHitIndex))
 					{
 						// if the point is in shadow, make it darker
-						DrawPixel(j, i, pixels, windowWidth, windowHeight, (sphereList[originalSphereHitIndex].col * ka) + (sphereList[originalSphereHitIndex].col * kd * factor * 0.2));
+						DrawPixel(j, i, pixels, windowWidth, windowHeight, (sphereList[originalSphereHitIndex].col * ka) + (sphereList[originalSphereHitIndex].col * kd * factor * 0.2f));
 					}
 					else
 					{
@@ -136,8 +137,8 @@ int main()
 						Vec3 halfway = (lightDir + cameraDir).Normalise();
 
 						// material properties
-						float ks = 0.5; // specular
-						float n = 250; // shininess
+						float ks = 0.5f; // specular
+						float n = 250.0f; // shininess
 
 						// highlight factor
 						float hf = pow((normal.Dot(halfway)), n);
@@ -166,7 +167,7 @@ int main()
 		window.display();
 
 		// fps counter
-		window.setTitle("FPS: " + std::to_string((int)(1.f / (clock.restart().asSeconds() - lastTime))));
+		window.setTitle("FPS: " + std::to_string((int)(1.0f / (clock.restart().asSeconds() - lastTime))));
 		float currentTime = clock.restart().asSeconds();
 		lastTime = currentTime;
 		
