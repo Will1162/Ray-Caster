@@ -16,6 +16,9 @@ There are a lot of features missing and performance is not that good, but I want
 - Potential GPU support (unlikley)
 - Windows larger than ~500,000 total pixels (weird bug)
 - Support for shapes other than spheres
+- Texture support (unlikley)
+- Camera rotation
+- Don't show objects behind the camera (bug)
 
 ## Building from source
 
