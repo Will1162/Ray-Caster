@@ -14,7 +14,7 @@ There are a lot of features missing and performance is not that good, but I want
 - Anti-aliasing
 - Multi threaded CPU support
 - Potential GPU support (unlikley)
-- Windows larger than ~500,000 total pixels (weird bug)
+- Windows larger than ~500,000 total pixels not launching (weird bug)
 - Support for shapes other than spheres
 - Texture support (unlikley)
 - Camera rotation
