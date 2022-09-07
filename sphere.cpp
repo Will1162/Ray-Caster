@@ -4,12 +4,12 @@ struct Sphere
 {
 	Vec3 pos = Vec3(0.0f, 0.0f, 0.0f);
 	float rad;
-	Colour col = Colour(0, 0, 0);
+	Material mat = Material(Colour(0, 0, 0), 0.0f, 0.0f, 0.0f, 0.0f);
 
-	Sphere(Vec3 pos, float rad, Colour col)
+	Sphere(Vec3 pos, float rad, Material mat)
 	{
 		this->pos = pos;
 		this->rad = rad;
-		this->col = col;
+		this->mat = mat;
 	}
 };

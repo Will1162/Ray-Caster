@@ -5,6 +5,7 @@
 #include "camera.cpp"
 #include "colour.cpp"
 #include "light.cpp"
+#include "material.cpp"
 #include "sphere.cpp"
 #include "utility.cpp"
 #include "vec3.cpp"
@@ -37,10 +38,10 @@ int main()
 	// list of all spheres in the scene
 	Sphere sphereList[] = 
 	{
-		Sphere(Vec3(-0.8f, -0.8f, 9.0f), 1.0f, Colour(255, 128, 64)), // orange
-		Sphere(Vec3(-0.8f, 0.2f, 7.0f), 1.0f, Colour(64, 255, 128)), // green
-		Sphere(Vec3(1.2f, 0.5f, 7.75f), 1.0f, Colour(128, 64, 255)), // purple
-		Sphere(Vec3(0.0f, 10.0f, 30.0f), 1.0f, Colour(255, 255, 255)), // white
+		Sphere(Vec3(-0.8f, -0.8f,  9.0f), 1.0f, Material(Colour(255, 128,  64), 0.3f, 1.0f, 1500.0f, 0.2f)), // orange
+		Sphere(Vec3(-0.8f,  0.2f,  7.0f), 1.0f, Material(Colour(64,  255, 128), 0.4f, 0.5f, 200.0f,  0.2f)), // green
+		Sphere(Vec3(1.2f,   0.5f,  7.7f), 1.0f, Material(Colour(128, 64,  255), 0.6f, 0.2f, 30.0f,   0.2f)), // purple
+		Sphere(Vec3(0.0f,  10.0f, 30.0f), 1.0f, Material(Colour(255, 255, 255), 0.8f, 0.5f, 250.0f,  0.2f)), // white
 	};
 
 	const int sphereCount = sizeof(sphereList) / sizeof(Sphere);
@@ -109,17 +110,14 @@ int main()
 					Vec3 lightDir = (light.pos - intersectionPos).Normalise();
 
 					// how much light should be reflected
-					float factor = cos(normal.AngleBetween(lightDir));
-
-					// material properties
-					float kd = 0.8f; // diffuse
-					float ka = 0.2f; // ambient
+					float lightFct = cos(normal.AngleBetween(lightDir));
 
 					// calculate the colour of the pixel
+					Material mat = sphereList[sphereHitIndex].mat;
 					Colour col(
-						(kd * factor + ka) * sphereList[sphereHitIndex].col.r,
-						(kd * factor + ka) * sphereList[sphereHitIndex].col.g,
-						(kd * factor + ka) * sphereList[sphereHitIndex].col.b
+						(mat.diff * lightFct + mat.amb) * mat.col.r,
+						(mat.diff * lightFct + mat.amb) * mat.col.g,
+						(mat.diff * lightFct + mat.amb) * mat.col.b
 					);
 
 					// set the pixel colour
@@ -127,7 +125,7 @@ int main()
 					if (SpherePointInShadow(intersectionPos, light, sphereList, sphereCount, originalSphereHitIndex))
 					{
 						// if the point is in shadow, make it darker
-						DrawPixel(j, i, pixels, windowWidth, windowHeight, (sphereList[originalSphereHitIndex].col * ka) + (sphereList[originalSphereHitIndex].col * kd * factor * 0.2f));
+						DrawPixel(j, i, pixels, windowWidth, windowHeight, (mat.col * mat.amb) + (mat.col * mat.diff * lightFct * 0.2f));
 					}
 					else
 					{
@@ -136,15 +134,11 @@ int main()
 						Vec3 cameraDir = (camera.pos - intersectionPos).Normalise();
 						Vec3 halfway = (lightDir + cameraDir).Normalise();
 
-						// material properties
-						float ks = 0.5f; // specular
-						float n = 250.0f; // shininess
-
 						// highlight factor
-						float hf = pow((normal.Dot(halfway)), n);
+						float hf = pow((normal.Dot(halfway)), mat.refl);
 
 						// add the ambient, diffuse and specular components
-						Colour newCol((sphereList[originalSphereHitIndex].col * ka) + (sphereList[originalSphereHitIndex].col * kd * factor) + (ks * hf * 255));
+						Colour newCol((mat.col * mat.amb) + (mat.col * mat.diff * lightFct) + (mat.spec * hf * 255));
 
 						DrawPixel(j, i, pixels, windowWidth, windowHeight, newCol);
 					}

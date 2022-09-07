@@ -8,7 +8,7 @@ There are a lot of features missing and performance is not that good, but I want
 ## To-do list
 - Multiple light source support
 - Coloured lights
-- Individual sphere material properties, not global
+- ~~Individual sphere material properties, not global~~
 - Sphere position animation, not just static
 - Ambient occlusion
 - Anti-aliasing
