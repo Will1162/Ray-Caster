@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vec3.cpp"
+
 int ClampRGBVal(int i)
 {
 	if (i > 255)
@@ -34,6 +36,13 @@ struct Colour
 		this->r = ClampRGBVal(r);
 		this->g = ClampRGBVal(g);
 		this->b = ClampRGBVal(b);
+	}
+
+	Colour(Vec3 col)
+	{
+		r = ClampRGBVal(col.x);
+		g = ClampRGBVal(col.y);
+		b = ClampRGBVal(col.z);
 	}
 
 	Colour Lerp(Colour c, float t)

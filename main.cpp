@@ -1,3 +1,5 @@
+#include <SFML/Graphics.hpp>
+
 #include "colour.cpp"
 #include "light.cpp"
 #include "sphere.cpp"
@@ -6,24 +8,26 @@
 
 int main()
 {
+	// window properties
 	const int windowWidth = 600;
 	const int windowHeight = 600;
 	const float aspectRatio = (float)windowHeight / (float)windowWidth;
 	sf::Uint8 pixels[4 * windowWidth * windowHeight];
 
+	// background colours
 	Colour topBackgroundCol(173, 200, 255);
 	Colour bottomBackgroundCol(107, 171, 255);
 
+	// objects used to display pixels[]
 	sf::Image image;
-	image.create(windowWidth, windowHeight, pixels);
-
 	sf::Texture texture;
-	texture.loadFromImage(image);
-
 	sf::Sprite sprite;
+	image.create(windowWidth, windowHeight, pixels);
+	texture.loadFromImage(image);
 	sprite.setPosition(0, 0);
 	sprite.setTexture(texture);
 
+	// window creation
 	sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Window", sf::Style::Titlebar | sf::Style::Close);
 	window.setFramerateLimit(60);
 
@@ -39,14 +43,15 @@ int main()
 	int sphereCount = sizeof(sphereList) / sizeof(Sphere);
 
 	// light
-	Light light(0, 5, 2, 1.0);
+	Light light(-5, -5, 5, 1.0);
 
 	//camera 
 	Vec3 camera(0.0, 0.0, 0.0);
 
-
+	// fps counter
 	sf::Clock clock;
 	float lastTime = 0;
+
 	while (window.isOpen())
 	{
 		// window event handling
@@ -71,14 +76,14 @@ int main()
             camera.z -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             camera.z += speed;
-		printf("camera: %f, %f, %f\n", camera.x, camera.y, camera.z);
+		//printf("camera: %f, %f, %f\n", camera.x, camera.y, camera.z);
 
 		// render calculations
 		for (int i = 0; i < windowHeight; i++)
 		{
 			for (int j = 0; j < windowWidth; j++)
 			{
-				// set up two points to define a ray
+				// set up two points to define a single ray
 				Vec3 p0 = camera;
 				Vec3 p1 = Vec3(
 					(j - windowWidth / 2) / (float)windowWidth + camera.x,
@@ -116,16 +121,30 @@ int main()
 					);
 
 					// set the pixel colour
-					//DrawPixel(j, i, pixels, windowWidth, windowHeight, col);
-
 					int originalSphereHitIndex = sphereHitIndex;
 					if (SpherePointInShadow(intersectionPos, light, sphereList, sphereCount, originalSphereHitIndex))
 					{
-						DrawPixel(j, i, pixels, windowWidth, windowHeight, (sphereList[sphereHitIndex].col * ka) + (sphereList[sphereHitIndex].col * kd * factor * 0.2));
+						// if the point is in shadow, make it darker
+						DrawPixel(j, i, pixels, windowWidth, windowHeight, (sphereList[originalSphereHitIndex].col * ka) + (sphereList[originalSphereHitIndex].col * kd * factor * 0.2));
 					}
 					else
 					{
-						DrawPixel(j, i, pixels, windowWidth, windowHeight, col);	
+						// if the point is not in shadow, draw it normally, also with phong highlights
+						// calculate the reflection vector
+						Vec3 cameraDir = (camera - intersectionPos).Normalise();
+						Vec3 halfway = (lightDir + cameraDir).Normalise();
+
+						// material properties
+						float ks = 0.5; // specular
+						float n = 250; // shininess
+
+						// highlight factor
+						float hf = pow((normal.Dot(halfway)), n);
+
+						// add the ambient, diffuse and specular components
+						Colour newCol((sphereList[originalSphereHitIndex].col * ka) + (sphereList[originalSphereHitIndex].col * kd * factor) + (ks * hf * 255));
+
+						DrawPixel(j, i, pixels, windowWidth, windowHeight, newCol);
 					}
 				}
 				else
