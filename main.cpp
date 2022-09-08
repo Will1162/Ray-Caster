@@ -39,16 +39,18 @@ int main()
 	Sphere sphereList[] = 
 	{
 		Sphere(Vec3(-0.8f, -0.8f,  9.0f), 1.0f, Material(Colour(255, 128,  64), 0.3f, 1.0f, 1500.0f, 0.2f)), // orange
-		Sphere(Vec3(-0.8f,  0.2f,  7.0f), 1.0f, Material(Colour(64,  255, 128), 0.4f, 0.5f,  200.0f, 0.2f)), // green
-		Sphere(Vec3(1.2f,   0.5f,  7.7f), 1.0f, Material(Colour(128, 64,  255), 0.6f, 0.2f,   30.0f, 0.2f)), // purple
-		Sphere(Vec3(1.2f,  -1.5f, 10.0f), 1.0f, Material(Colour(128, 0,    64), 0.7f, 0.4f,   20.0f, 0.2f)), // pink
+		Sphere(Vec3(-0.8f,  0.2f,  7.0f), 1.0f, Material(Colour( 64, 255, 128), 0.4f, 0.5f,  200.0f, 0.2f)), // green
+		Sphere(Vec3(1.2f,   0.5f,  7.7f), 1.0f, Material(Colour(128,  64, 255), 0.6f, 0.2f,   30.0f, 0.2f)), // purple
+		Sphere(Vec3(1.2f,  -1.5f, 10.0f), 1.0f, Material(Colour(255, 255, 255), 0.7f, 0.4f,   20.0f, 0.2f)), // white
 	};
 
 	// list of all lights in the scene
 	Light lightList[] = 
 	{
-		Light(Vec3(-5.0f, -5.0f, 5.0f), 2.0f),
-		Light(Vec3(3.0f, -2.0f, 4.0f), 1.0f)
+		Light(Vec3(-5.0f,  -5.0f, 5.0f), Colour(255, 128, 128), 50.0f), // red
+		Light(Vec3( 0.0f, -10.0f, 4.0f), Colour(128, 255, 128), 80.0f), // green
+		Light(Vec3( 3.0f,  -2.0f, 4.0f), Colour(128, 128, 255), 30.0f), // blue
+		Light(Vec3(-3.0f,  -3.0f, 9.0f), Colour(255, 255, 255),  8.0f)  // white
 	};
 
 	// sphere and light count
@@ -124,7 +126,8 @@ int main()
 						Vec3 lightDir = (lightList[k].pos - intersectionPos).Normalise();
 
 						// how much light should be reflected
-						float lightFct = cos(normal.AngleBetween(lightDir)) * lightList[k].i;
+						float distanceToLight = (lightList[k].pos - intersectionPos).Length();
+						float lightFct = cos(normal.AngleBetween(lightDir)) * lightList[k].i * (1.0f / (distanceToLight * distanceToLight));
 
 						// calculate the colour of the pixel
 						Colour col(
@@ -139,11 +142,11 @@ int main()
 						{
 							// if the point is in shadow, make it darker
 							float shadowFct = 0.5f;
-							newCol = newCol + ((mat.col * mat.diff * lightFct * shadowFct));
+							newCol = newCol + (mat.col * mat.diff * (lightFct / lightList[k].i) * shadowFct);
 						}
 						else
 						{
-							// if the point is not in shadow, draw it normally, also with phong highlights
+							// if the point is not in shadow, draw it normally, using the phong highlight model
 
 							// calculate the reflection vector
 							Vec3 cameraDir = (camera.pos - intersectionPos).Normalise();
@@ -153,11 +156,11 @@ int main()
 							float hf = pow((normal.Dot(halfway)), mat.refl);
 
 							// add the diffuse and specular components
-							newCol = newCol + ((mat.col * mat.diff * lightFct) + (mat.spec * hf * 255.0f));
+							newCol = newCol + (lightList[k].col * mat.col  * mat.diff * lightFct) + (lightList[k].col * mat.spec * hf);
 						}
 					}
 
-					// add ambient light
+					// add ambient component and clamp the colour
 					newCol = newCol + (mat.col * mat.amb);
 					newCol.Clamp();
 

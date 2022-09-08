@@ -7,7 +7,7 @@ There are a lot of features missing and performance is not that good, but I want
 
 ## To-do list
 - ~~Multiple light source support~~
-- Coloured lights
+- ~~Coloured lights~~
 - ~~Individual sphere material properties, not global~~
 - Sphere position animation, not just static
 - Ambient occlusion
@@ -19,7 +19,9 @@ There are a lot of features missing and performance is not that good, but I want
 - Texture support (unlikley)
 - Camera rotation
 - Don't show objects behind the camera (bug)
-- Add light inverse square law
+- ~~Add light inverse square law~~
+- Skybox/HDRI support
+- Gamma correction
 
 ## Building from source
 

@@ -47,3 +47,9 @@ Colour operator/(Colour a, float b)
 {
 	return Colour(a.r / b, a.g / b, a.b / b);
 }
+
+Colour operator*(Colour a, Colour b)
+{
+	a = a / 255.0f;
+	return Colour(a.r * b.r, a.g * b.g, a.b * b.b);
+}
