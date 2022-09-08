@@ -6,7 +6,7 @@ A simple raytracer built to fill some time over the summer break. There is nothi
 There are a lot of features missing and performance is not that good, but I want to add more features as time goes on and work on improving performance.
 
 ## To-do list
-- Multiple light source support
+- ~~Multiple light source support~~
 - Coloured lights
 - ~~Individual sphere material properties, not global~~
 - Sphere position animation, not just static
@@ -19,6 +19,7 @@ There are a lot of features missing and performance is not that good, but I want
 - Texture support (unlikley)
 - Camera rotation
 - Don't show objects behind the camera (bug)
+- Add light inverse square law
 
 ## Building from source
 
