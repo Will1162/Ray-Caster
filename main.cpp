@@ -38,10 +38,10 @@ int main()
 	// list of all spheres in the scene
 	Sphere sphereList[] = 
 	{
-		Sphere(Vec3(-0.8f, -0.8f,  9.0f), 1.0f, Material(Colour(255, 128,  64), 0.3f, 1.0f, 1500.0f, 0.2f)), // orange
-		Sphere(Vec3(-0.8f,  0.2f,  7.0f), 1.0f, Material(Colour( 64, 255, 128), 0.4f, 0.5f,  200.0f, 0.2f)), // green
-		Sphere(Vec3(1.2f,   0.5f,  7.7f), 1.0f, Material(Colour(128,  64, 255), 0.6f, 0.2f,   30.0f, 0.2f)), // purple
-		Sphere(Vec3(1.2f,  -1.5f, 10.0f), 1.0f, Material(Colour(255, 255, 255), 0.7f, 0.4f,   20.0f, 0.2f)), // white
+		Sphere(Vec3(-0.8f, -0.8f,  9.0f), 1.0f, Material(Colour(255, 128,  64), 0.3f, 1.0f, 1500.0f, 0.08f)), // orange
+		Sphere(Vec3(-0.8f,  0.2f,  7.0f), 1.0f, Material(Colour( 64, 255, 128), 0.4f, 0.5f,  200.0f, 0.08f)), // green
+		Sphere(Vec3(1.2f,   0.5f,  7.7f), 1.0f, Material(Colour(128,  64, 255), 0.6f, 0.2f,   30.0f, 0.08f)), // purple
+		Sphere(Vec3(1.2f,  -1.5f, 10.0f), 1.0f, Material(Colour(255, 255, 255), 0.7f, 0.4f,   20.0f, 0.08f)), // white
 	};
 
 	// list of all lights in the scene
@@ -59,6 +59,8 @@ int main()
 
 	//camera 
 	Camera camera(Vec3(0.0f, 0.0f, 0.0f), 90.0f);
+
+	float gamma = 2.2f;
 
 	// fps counter
 	sf::Clock clock;
@@ -162,6 +164,15 @@ int main()
 
 					// add ambient component and clamp the colour
 					newCol = newCol + (mat.col * mat.amb);
+
+					// gamma correction
+					newCol = Colour(
+						pow(newCol.r / 255.0f, 1.0f / gamma) * 255.0f,
+						pow(newCol.g / 255.0f, 1.0f / gamma) * 255.0f,
+						pow(newCol.b / 255.0f, 1.0f / gamma) * 255.0f
+					);
+
+					// clamp colour
 					newCol.Clamp();
 
 					// draw the pixel

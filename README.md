@@ -21,7 +21,7 @@ There are a lot of features missing and performance is not that good, but I want
 - Don't show objects behind the camera (bug)
 - ~~Add light inverse square law~~
 - Skybox/HDRI support
-- Gamma correction
+- ~~Gamma correction~~
 
 ## Building from source
 
