@@ -12,13 +12,13 @@ There are a lot of features missing and performance is not that good, but I want
 - Sphere position animation, not just static
 - Ambient occlusion
 - Anti-aliasing
-- Multi threaded CPU support
+- ~~Multi threaded CPU support~~
 - Potential GPU support (unlikley)
 - Windows larger than ~500,000 total pixels not launching (weird bug)
 - Support for shapes other than spheres
 - Texture support (unlikley)
 - Camera rotation
-- Don't show objects behind the camera (bug)
+- ~~Don't show objects behind the camera (bug)~~
 - ~~Add light inverse square law~~
 - Skybox/HDRI support
 - ~~Gamma correction~~
