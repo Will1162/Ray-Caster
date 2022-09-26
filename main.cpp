@@ -13,8 +13,8 @@
 
 // threading global variables
 static int pixelsRendered = 0;
-static int availableThreads = 16;
-static int totalThreads = 16;
+static int availableThreads = std::thread::hardware_concurrency();
+static int totalThreads = std::thread::hardware_concurrency();
 
 // window global variables
 static const int WINDOW_WIDTH = 512;
