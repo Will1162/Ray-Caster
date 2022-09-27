@@ -53,7 +53,7 @@ static const int SPHRE_COUNT = sizeof(SPHERE_LIST) / sizeof(Sphere);
 static const int LIGHT_COUNT = sizeof(LIGHT_LIST) / sizeof(Light);
 
 //camera 
-static Camera CAMERA(Vec3(0.0f, 0.0f, 0.0f), 90.0f);
+static Camera CAMERA(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 0.0f), 90.0f);
 
 // render block of pixels at x, y, with width and height of BLOCK_SIZE_X and BLOCK_SIZE_Y
 void RenderPixelBlock(int x, int y)
@@ -66,9 +66,9 @@ void RenderPixelBlock(int x, int y)
 			// set up two points to define a single ray
 			Vec3 p0 = CAMERA.pos;
 			Vec3 p1 = Vec3(
-				(x + i - WINDOW_WIDTH / 2) / (float)WINDOW_WIDTH + CAMERA.pos.x,
-				((y + j - WINDOW_HEIGHT / 2) / (float)WINDOW_HEIGHT / aspectRatio) * -1.0f + CAMERA.pos.y,
-				CAMERA.pos.z + CAMERA.focalLength
+				(x + i - WINDOW_WIDTH / 2) / (float)WINDOW_WIDTH + CAMERA.pos.x + (CAMERA.focalLength * sin(CAMERA.rot.y) * cos(CAMERA.rot.x)),
+				((y + j - WINDOW_HEIGHT / 2) / (float)WINDOW_HEIGHT / aspectRatio) * -1.0f + CAMERA.pos.y + (CAMERA.focalLength * sin(CAMERA.rot.x)),
+				CAMERA.pos.z + (CAMERA.focalLength * cos(CAMERA.rot.y) * cos(CAMERA.rot.x))
 			);
 
 			// find the closest sphere that the ray intersects
@@ -170,6 +170,7 @@ void RenderPixelBlock(int x, int y)
 
 int main()
 {
+	printf("resrubg\n");
 	// objects used to display PIXELS[]
 	sf::Image image;
 	sf::Texture texture;
@@ -188,8 +189,13 @@ int main()
 	if (totalThreads <= 0)
 		totalThreads = 1;
 
-	printf("Block size: X: %i, Y: %i\n", BLOCK_SIZE_X, BLOCK_SIZE_Y);
 	printf("Available threads: %d\n", totalThreads);
+	printf("Block size: X: %i, Y: %i\n", BLOCK_SIZE_X, BLOCK_SIZE_Y);
+
+	if (WINDOW_WIDTH % totalThreads != 0 || WINDOW_HEIGHT % totalThreads != 0)
+	{
+		printf("WARNING: Window size is not divisible by the number of threads, some pixels may not be rendered.\n");
+	}
 
 	// fps counter
 	sf::Clock clock;
@@ -220,6 +226,14 @@ int main()
             CAMERA.pos.z -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
             CAMERA.pos.z += speed;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+			CAMERA.rot.x += speed * 0.25f;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			CAMERA.rot.x -= speed * 0.25f;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+            CAMERA.rot.y -= speed * 0.25f;
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            CAMERA.rot.y += speed * 0.25f;
 
 		// render calculations
 		pixelsRendered = 0;

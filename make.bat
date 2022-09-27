@@ -1,15 +1,17 @@
 @echo off
 
+cls
+cd build
 del RayTracer-x64.exe
 
-cls
-
 :: run with cmd showing
-g++ main.cpp -o RayTracer-x64.exe -IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -O2 -g -Wall -DSFML_STATIC
+g++ ../src/main.cpp -o RayTracer-x64.exe -IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -O2 -g -Wall -DSFML_STATIC
 
 :: run without cmd showing
-:: g++ main.cpp -o RayTracer-x64.exe -IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -O2 -mwindows -DSFML_STATIC
+:: g++ ../src/main.cpp -o RayTracer-x64.exe -IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -O2 -mwindows -DSFML_STATIC
 
 if exist RayTracer-x64.exe (
 	RayTracer-x64.exe
 )
+
+cd ../
