@@ -1,15 +1,13 @@
-#include <math.h>
 #include <thread>
+#include <math.h>
 
-#include <SFML/Graphics.hpp>
-
-#include "camera.cpp"
-#include "colour.cpp"
-#include "light.cpp"
-#include "material.cpp"
-#include "sphere.cpp"
-#include "utility.cpp"
-#include "vec3.cpp"
+#include "camera.hpp"
+#include "colour.hpp"
+#include "light.hpp"
+#include "material.hpp"
+#include "sphere.hpp"
+#include "utility.hpp"
+#include "vec3.hpp"
 
 // threading global variables
 int pixelsRendered = 0;
@@ -78,9 +76,10 @@ int main()
 	printf("Available threads: %d\n", totalThreads);
 	printf("Block size: X: %i, Y: %i\n", BLOCK_SIZE_X, BLOCK_SIZE_Y);
 
-	if (WINDOW_WIDTH % totalThreads != 0 || WINDOW_HEIGHT % totalThreads != 0)
+	if (std::fmod(WINDOW_WIDTH / sqrt(totalThreads), 1) != floor(std::fmod(WINDOW_WIDTH / sqrt(totalThreads), 1)) ||
+		std::fmod(WINDOW_HEIGHT / sqrt(totalThreads), 1) != floor(std::fmod(WINDOW_HEIGHT / sqrt(totalThreads), 1)))
 	{
-		printf("WARNING: Window size is not divisible by the number of threads, some pixels may not be rendered.\n");
+		printf("WARNING: Mismatched window resolution and thread count. Visual errors much more likley.\n");
 	}
 
 	// fps counter

@@ -1,21 +1,4 @@
-#pragma once
-
-// main.cpp global variables
-extern const int WINDOW_WIDTH;
-extern const int WINDOW_HEIGHT;
-extern const int BLOCK_SIZE_X;
-extern const int BLOCK_SIZE_Y;
-extern Camera CAMERA;
-extern Sphere SPHERE_LIST[];
-extern const int SPHERE_COUNT;
-extern Light LIGHT_LIST[];
-extern const int LIGHT_COUNT;
-extern const float GAMMA;
-extern sf::Uint8 PIXELS[];
-extern Colour TOP_BG_COL;
-extern Colour BOT_BG_COL;
-extern int availableThreads;
-extern int pixelsRendered;
+#include "utility.hpp"
 
 void DrawPixel(int x, int y, Colour(col))
 {

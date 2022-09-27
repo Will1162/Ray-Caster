@@ -1,14 +1,42 @@
 @echo off
 
-cls
+set showDebugCmd=1
+
 cd build
 del RayTracer-x64.exe
 
-:: run with cmd showing
-g++ ../src/main.cpp -o RayTracer-x64.exe -IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -O2 -g -Wall -DSFML_STATIC
+cls
 
-:: run without cmd showing
-:: g++ ../src/main.cpp -o RayTracer-x64.exe -IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -O2 -mwindows -DSFML_STATIC
+if %showDebugCmd%==0 (
+	g++ -std=c++17 -O2 ^
+	../src/main.cpp ^
+	../src/camera.cpp ^
+	../src/colour.cpp ^
+	../src/light.cpp ^
+	../src/material.cpp ^
+	../src/sphere.cpp ^
+	../src/utility.cpp ^
+	../src/vec3.cpp ^
+	-o RayTracer-x64.exe ^
+	-IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -DSFML_STATIC ^
+	-mwindows
+)
+
+if %showDebugCmd%==1 (
+	g++ -std=c++17 -O2 ^
+	../src/main.cpp ^
+	../src/camera.cpp ^
+	../src/colour.cpp ^
+	../src/light.cpp ^
+	../src/material.cpp ^
+	../src/sphere.cpp ^
+	../src/utility.cpp ^
+	../src/vec3.cpp ^
+	-o RayTracer-x64.exe ^
+	-IC:\SFML\include -LC:/SFML/lib -lsfml-graphics -lsfml-window -lsfml-system -DSFML_STATIC ^
+	-g -Wall
+)
+
 
 if exist RayTracer-x64.exe (
 	RayTracer-x64.exe
