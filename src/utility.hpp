@@ -33,7 +33,7 @@ namespace WB_RT
 	void DrawPixel(int x, int y, Colour(col));
 	bool RaySphereIntersection(Vec3 p0, Vec3 p1, Vec3 &intersection, int &sphereHitIndex, int ignoreIndex);
 	bool SpherePointInShadow(Vec3 spherePoint, Light light, int ignoreIndex);
-	void RenderPixelBlock(int x, int y);
+	void RenderPixelsInterlace(int offset, int threadCount);
 }
 
 #endif

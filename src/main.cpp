@@ -134,9 +134,9 @@ int main()
 		// start threads rendering blocks of pixels
 		int x = 0;
 		int y = 0;
-		int count = 0;
+		int threadsRendered = 0;
 		// while there are still pixels to render
-		while (count < (WINDOW_WIDTH * WINDOW_HEIGHT) / (BLOCK_SIZE_X * BLOCK_SIZE_Y))
+		while (threadsRendered < totalThreads)
 		{
 			// re-join threads that have finished
 			for (int i = 0; i < (int)threads.size(); i++)
@@ -154,7 +154,7 @@ int main()
 				if (availableThreadArray[i] == 1)
 				{
 					// start thread and set it to unavailable
-					threads[i] = std::thread(WB_RT::RenderPixelBlock, x, y);
+					threads[i] = std::thread(WB_RT::RenderPixelsInterlace, threadsRendered, totalThreads);
 
 					availableThreadArray[i] = 0;
 
@@ -166,7 +166,7 @@ int main()
 						y += BLOCK_SIZE_Y;
 					}
 
-					count++;
+					threadsRendered++;
 				}
 			}
 		}
