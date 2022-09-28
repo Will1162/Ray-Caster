@@ -25,33 +25,33 @@ const float GAMMA = 2.2f;
 sf::Uint8 PIXELS[4 * WINDOW_WIDTH * WINDOW_HEIGHT];
 
 // background colours
-Colour TOP_BG_COL(173, 200, 255);
-Colour BOT_BG_COL(107, 171, 255);
+WB_RT::Colour TOP_BG_COL(173, 200, 255);
+WB_RT::Colour BOT_BG_COL(107, 171, 255);
 
 // list of all spheres in the scene
-Sphere SPHERE_LIST[] = 
+WB_RT::Sphere SPHERE_LIST[] = 
 {
-	Sphere(Vec3(-0.8f,  0.8f,  9.0f), 1.0f, Material(Colour(255, 128,  64), 0.3f, 1.0f, 1500.0f, 0.08f)), // orange
-	Sphere(Vec3(-0.8f, -0.2f,  7.0f), 1.0f, Material(Colour( 64, 255, 128), 0.4f, 0.5f,  200.0f, 0.08f)), // green
-	Sphere(Vec3(1.2f,  -0.5f,  7.7f), 1.0f, Material(Colour(128,  64, 255), 0.6f, 0.2f,   30.0f, 0.08f)), // purple
-	Sphere(Vec3(1.2f,   1.5f, 10.0f), 1.0f, Material(Colour(255, 255, 255), 0.7f, 0.4f,   20.0f, 0.08f)), // white
+	WB_RT::Sphere(WB_RT::Vec3(-0.8f,  0.8f,  9.0f), 1.0f, WB_RT::Material(WB_RT::Colour(255, 128,  64), 0.3f, 1.0f, 1500.0f, 0.08f)), // orange
+	WB_RT::Sphere(WB_RT::Vec3(-0.8f, -0.2f,  7.0f), 1.0f, WB_RT::Material(WB_RT::Colour( 64, 255, 128), 0.4f, 0.5f,  200.0f, 0.08f)), // green
+	WB_RT::Sphere(WB_RT::Vec3(1.2f,  -0.5f,  7.7f), 1.0f, WB_RT::Material(WB_RT::Colour(128,  64, 255), 0.6f, 0.2f,   30.0f, 0.08f)), // purple
+	WB_RT::Sphere(WB_RT::Vec3(1.2f,   1.5f, 10.0f), 1.0f, WB_RT::Material(WB_RT::Colour(255, 255, 255), 0.7f, 0.4f,   20.0f, 0.08f)), // white
 };
 
 // list of all lights in the scene
-Light LIGHT_LIST[] = 
+WB_RT::Light LIGHT_LIST[] = 
 {
-	Light(Vec3(-5.0f,  5.0f, 5.0f), Colour(255, 128, 128), 50.0f), // red
-	Light(Vec3( 0.0f, 10.0f, 4.0f), Colour(128, 255, 128), 80.0f), // green
-	Light(Vec3( 3.0f,  2.0f, 4.0f), Colour(128, 128, 255), 30.0f), // blue
-	Light(Vec3(-3.0f,  3.0f, 9.0f), Colour(255, 255, 255),  8.0f)  // white
+	WB_RT::Light(WB_RT::Vec3(-5.0f,  5.0f, 5.0f), WB_RT::Colour(255, 128, 128), 50.0f), // red
+	WB_RT::Light(WB_RT::Vec3( 0.0f, 10.0f, 4.0f), WB_RT::Colour(128, 255, 128), 80.0f), // green
+	WB_RT::Light(WB_RT::Vec3( 3.0f,  2.0f, 4.0f), WB_RT::Colour(128, 128, 255), 30.0f), // blue
+	WB_RT::Light(WB_RT::Vec3(-3.0f,  3.0f, 9.0f), WB_RT::Colour(255, 255, 255),  8.0f)  // white
 };
 
 // sphere and light count
-const int SPHERE_COUNT = sizeof(SPHERE_LIST) / sizeof(Sphere);
-const int LIGHT_COUNT = sizeof(LIGHT_LIST) / sizeof(Light);
+const int SPHERE_COUNT = sizeof(SPHERE_LIST) / sizeof(WB_RT::Sphere);
+const int LIGHT_COUNT = sizeof(LIGHT_LIST) / sizeof(WB_RT::Light);
 
 //camera 
-Camera CAMERA(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 0.0f), 90.0f);
+WB_RT::Camera CAMERA(WB_RT::Vec3(0.0f, 0.0f, 0.0f), WB_RT::Vec3(0.0f, 0.0f, 0.0f), 90.0f);
 
 int main()
 {
@@ -154,7 +154,7 @@ int main()
 				if (availableThreadArray[i] == 1)
 				{
 					// start thread and set it to unavailable
-					threads[i] = std::thread(RenderPixelBlock, x, y);
+					threads[i] = std::thread(WB_RT::RenderPixelBlock, x, y);
 
 					availableThreadArray[i] = 0;
 

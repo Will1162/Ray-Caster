@@ -3,16 +3,19 @@
 
 #include "colour.hpp"
 
-class Material
+namespace WB_RT
 {
-	public:
-		Colour col = Colour(0, 0, 0);
-		float diff; // diffuse
-		float spec; // specular
-		float refl; // reflectivity
-		float amb;  // ambient
+	class Material
+	{
+		public:
+			Colour col = Colour(0, 0, 0);
+			float diff; // diffuse
+			float spec; // specular
+			float refl; // reflectivity
+			float amb;  // ambient
 
-		Material(Colour col, float diff, float spec, float refl, float amb);
-};
+			Material(Colour col, float diff, float spec, float refl, float amb);
+	};
+}
 
 #endif

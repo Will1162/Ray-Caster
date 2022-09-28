@@ -3,15 +3,18 @@
 
 #include "vec3.hpp"
 
-class Camera
+namespace WB_RT
 {
-	public:
-		Vec3 pos = Vec3(0.0f, 0.0f, 0.0f);
-		Vec3 rot = Vec3(0.0f, 0.0f, 0.0f);
-		float fov;
-		float focalLength;
+	class Camera
+	{
+		public:
+			Vec3 pos = Vec3(0.0f, 0.0f, 0.0f);
+			Vec3 rot = Vec3(0.0f, 0.0f, 0.0f);
+			float fov;
+			float focalLength;
 
-		Camera(Vec3 pos, Vec3 rot, float fov);
-};
+			Camera(Vec3 pos, Vec3 rot, float fov);
+	};
+}
 
 #endif

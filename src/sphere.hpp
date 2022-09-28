@@ -4,14 +4,17 @@
 #include "material.hpp"
 #include "vec3.hpp"
 
-class Sphere
+namespace WB_RT
 {
-	public:
-		Vec3 pos = Vec3(0.0f, 0.0f, 0.0f);
-		float rad;
-		Material mat = Material(Colour(0, 0, 0), 0.0f, 0.0f, 0.0f, 0.0f);
+	class Sphere
+	{
+		public:
+			Vec3 pos = Vec3(0.0f, 0.0f, 0.0f);
+			float rad;
+			Material mat = Material(Colour(0, 0, 0), 0.0f, 0.0f, 0.0f, 0.0f);
 
-		Sphere(Vec3 pos, float rad, Material mat);
-};
+			Sphere(Vec3 pos, float rad, Material mat);
+	};
+}
 
 #endif

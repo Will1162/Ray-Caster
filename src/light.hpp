@@ -4,14 +4,17 @@
 #include "colour.hpp"
 #include "vec3.hpp"
 
-class Light
+namespace WB_RT
 {
-	public:
-		Vec3 pos = Vec3(0.0f, 0.0f, 0.0f);
-		Colour col = Colour(0, 0, 0);
-		float i;
+	class Light
+	{
+		public:
+			Vec3 pos = Vec3(0.0f, 0.0f, 0.0f);
+			Colour col = Colour(0, 0, 0);
+			float i;
 
-		Light(Vec3 pos, Colour col, float i);
-};
+			Light(Vec3 pos, Colour col, float i);
+	};
+}
 
 #endif
