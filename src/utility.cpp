@@ -178,7 +178,6 @@ namespace WB_RT
 			}
 		}
 
-		availableThreads++;
-		pixelsRendered++;
+		THREAD_STATUS[offset] = 1;
 	}
 }

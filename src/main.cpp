@@ -12,14 +12,14 @@
 #include "vec3.hpp"
 
 // threading global variables
-int pixelsRendered = 0;
-int availableThreads = std::thread::hardware_concurrency() - 1;
-int totalThreads = std::thread::hardware_concurrency() - 1;
+int TOTAL_THREADS = std::thread::hardware_concurrency();
 
 // window global variables
 const int WINDOW_WIDTH = 512;
 const int WINDOW_HEIGHT = 512;
 const float GAMMA = 2.2f;
+
+int* THREAD_STATUS = (int*)malloc(sizeof(int) * TOTAL_THREADS);
 
 // pixel buffer
 sf::Uint8 PIXELS[4 * WINDOW_WIDTH * WINDOW_HEIGHT];
@@ -66,17 +66,19 @@ int main()
 
 	// window creation
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Window", sf::Style::Titlebar | sf::Style::Close);
-	window.setFramerateLimit(100);
+	window.setFramerateLimit(10);
 
 	// thread pool
-	ctpl::thread_pool threadPool(availableThreads);
+	ctpl::thread_pool threadPool(TOTAL_THREADS);
 
 	// available threads
-	availableThreads = totalThreads;
-	if (totalThreads <= 0)
-		totalThreads = 1;
+	if (TOTAL_THREADS <= 0)
+		TOTAL_THREADS = 1;
 
-	printf("System threads: %d\n", totalThreads + 1);
+	for (int i = 0; i < TOTAL_THREADS; i++)
+		THREAD_STATUS[i] = 0;
+
+	printf("System threads: %d\n", TOTAL_THREADS);
 
 	// fps counter
 	sf::Clock clock;
@@ -94,7 +96,7 @@ int main()
 		}
 
 		// keyboard input
-		float speed = 400.0f * lastTime;
+		float speed = 800.0f * lastTime;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             CAMERA.pos.x -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
@@ -116,16 +118,33 @@ int main()
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
             CAMERA.rot.y += speed * 0.25f;
 
-		// render calculations
-		pixelsRendered = 0;
 
-		int threadsRendered = 0;
+		// clear thread status
+		for (int i = 0; i < TOTAL_THREADS; i++)
+			THREAD_STATUS[i] = 0;
+
+		int threadsAllocated = 0;
 		// while there are still pixels to render
-		while (threadsRendered < totalThreads)
+		while (threadsAllocated < TOTAL_THREADS)
 		{
 			// push new render task to thread pool
-			threadPool.push(WB_RT::RenderPixelsInterlace, threadsRendered, totalThreads);
-			threadsRendered++;
+			threadPool.push(WB_RT::RenderPixelsInterlace, threadsAllocated, TOTAL_THREADS);
+			threadsAllocated++;
+		}
+
+		// wait for all threads to finish
+		bool stillRunning = true;
+		while (stillRunning)
+		{
+			stillRunning = false;
+			for (int i = 0; i < TOTAL_THREADS; i++)
+			{
+				if (THREAD_STATUS[i] == 0)
+				{
+					stillRunning = true;
+					break;
+				}
+			}
 		}
 
 		// render

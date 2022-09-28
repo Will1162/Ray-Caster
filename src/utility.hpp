@@ -25,8 +25,7 @@ extern const float GAMMA;
 extern sf::Uint8 PIXELS[];
 extern WB_RT::Colour TOP_BG_COL;
 extern WB_RT::Colour BOT_BG_COL;
-extern int availableThreads;
-extern int pixelsRendered;
+extern int* THREAD_STATUS;
 
 namespace WB_RT
 {
