@@ -1,6 +1,8 @@
 #include <thread>
 #include <math.h>
 
+#include "../lib/ctpl_stl.hpp"
+
 #include "camera.hpp"
 #include "colour.hpp"
 #include "light.hpp"
@@ -17,8 +19,6 @@ int totalThreads = std::thread::hardware_concurrency();
 // window global variables
 const int WINDOW_WIDTH = 512;
 const int WINDOW_HEIGHT = 512;
-const int BLOCK_SIZE_X = WINDOW_WIDTH / sqrt(totalThreads);
-const int BLOCK_SIZE_Y = WINDOW_HEIGHT / sqrt(totalThreads);
 const float GAMMA = 2.2f;
 
 // pixel buffer
@@ -66,21 +66,17 @@ int main()
 
 	// window creation
 	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Window", sf::Style::Titlebar | sf::Style::Close);
-	window.setFramerateLimit(60);
+	window.setFramerateLimit(100);
+
+	// thread pool
+	ctpl::thread_pool threadPool(availableThreads);
 
 	// available threads
 	availableThreads = totalThreads;
 	if (totalThreads <= 0)
 		totalThreads = 1;
 
-	printf("Available threads: %d\n", totalThreads);
-	printf("Block size: X: %i, Y: %i\n", BLOCK_SIZE_X, BLOCK_SIZE_Y);
-
-	if (std::fmod(WINDOW_WIDTH / sqrt(totalThreads), 1) != floor(std::fmod(WINDOW_WIDTH / sqrt(totalThreads), 1)) ||
-		std::fmod(WINDOW_HEIGHT / sqrt(totalThreads), 1) != floor(std::fmod(WINDOW_HEIGHT / sqrt(totalThreads), 1)))
-	{
-		printf("WARNING: Mismatched window resolution and thread count. Visual errors much more likley.\n");
-	}
+	printf("System threads: %d\n", totalThreads + 1);
 
 	// fps counter
 	sf::Clock clock;
@@ -98,7 +94,7 @@ int main()
 		}
 
 		// keyboard input
-		float speed = 0.1f;
+		float speed = 400.0f * lastTime;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             CAMERA.pos.x -= speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
@@ -123,75 +119,13 @@ int main()
 		// render calculations
 		pixelsRendered = 0;
 
-		// set up threads
-		std::vector<std::thread> threads(totalThreads);
-		int* availableThreadArray = (int*)malloc(sizeof(int) * totalThreads);
-		for (int i = 0; i < totalThreads; i++)
-		{
-			availableThreadArray[i] = 1;
-		}
-
-		// start threads rendering blocks of pixels
-		int x = 0;
-		int y = 0;
 		int threadsRendered = 0;
 		// while there are still pixels to render
 		while (threadsRendered < totalThreads)
 		{
-			// re-join threads that have finished
-			for (int i = 0; i < (int)threads.size(); i++)
-			{
-				if (threads[i].joinable())
-				{
-					threads[i].join();
-					availableThreadArray[i] = 1;
-				}
-			}
-
-			// start threads that are available
-			for (int i = 0; i < (int)threads.size(); i++)
-			{
-				if (availableThreadArray[i] == 1)
-				{
-					// start thread and set it to unavailable
-					threads[i] = std::thread(WB_RT::RenderPixelsInterlace, threadsRendered, totalThreads);
-
-					availableThreadArray[i] = 0;
-
-					// move to next block
-					x += BLOCK_SIZE_X;
-					if (x >= WINDOW_WIDTH)
-					{
-						x = 0;
-						y += BLOCK_SIZE_Y;
-					}
-
-					threadsRendered++;
-				}
-			}
-		}
-
-		// wait for all threads to finish
-		bool allThreadsDone = false;
-		while (!allThreadsDone)
-		{
-			allThreadsDone = true;
-			for (int i = 0; i < (int)threads.size(); i++)
-			{
-				if (threads[i].joinable())
-				{
-					threads[i].join();
-					availableThreadArray[i] = 1;
-				}
-			}
-			for (int i = 0; i < (int)threads.size(); i++)
-			{
-				if (availableThreadArray[i] == 0)
-				{
-					allThreadsDone = false;
-					break;
-				}
-			}
+			// push new render task to thread pool
+			threadPool.push(WB_RT::RenderPixelsInterlace, threadsRendered, totalThreads);
+			threadsRendered++;
 		}
 
 		// render

@@ -63,10 +63,17 @@ namespace WB_RT
 		return false;
 	}
 
-	void RenderPixelsInterlace(int offset, int threadCount)
+	void RenderPixelsInterlace(int id, int offset, int threadCount)
 	{
 		for (int i = offset; i < WINDOW_WIDTH * WINDOW_HEIGHT; i += threadCount)
 		{
+			// dont draw pixels off screen
+			if (i >= WINDOW_WIDTH * WINDOW_HEIGHT)
+			{
+				break;
+			}
+			
+			// offset to pixel x, y
 			int x = i % WINDOW_WIDTH;
 			int y = i / WINDOW_WIDTH;
 
