@@ -1,4 +1,6 @@
-# RayTracer
+<img src="https://img.shields.io/github/repo-size/Will1162/Ray-Caster"/> <img src="https://img.shields.io/tokei/lines/github/Will1162/Ray-Caster"/> <img src="https://img.shields.io/github/downloads/Will1162/Ray-Caster/total"/> <img src="https://img.shields.io/github/last-commit/Will1162/Ray-Caster"/>
+
+# Ray Caster
 	
 ## About the project
 
@@ -6,6 +8,7 @@ A simple raytracer built to fill some time over the summer break. There is nothi
 There are a lot of features missing and performance is not that good, but I want to add more features as time goes on and work on improving performance.
 
 ## To-do list
+
 - ~~Multiple light source support~~
 - ~~Coloured lights~~
 - ~~Individual sphere material properties, not global~~
